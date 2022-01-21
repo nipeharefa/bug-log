@@ -1,9 +1,11 @@
-package main
+package bug
 
 import (
 	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type (
@@ -39,6 +41,19 @@ func (b *bugsnag) Report(err error) {
 	go func() {
 		b.reportChan <- err
 	}()
+
+}
+func (b *bugsnag) GinHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var fnReport ReportFunc
+		fnReport = func(err error) {
+			b.Report(err)
+		}
+		ctx := context.WithValue(context.Background(), "bugsnag", fnReport)
+		c.Request = c.Request.WithContext(ctx)
+
+		c.Next()
+	}
 
 }
 

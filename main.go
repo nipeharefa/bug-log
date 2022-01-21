@@ -8,18 +8,19 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/nipeharefa/bug-log/bug"
 )
 
 func main() {
 
-	bb := NewBugsnag()
+	bb := bug.NewBugsnag()
 
 	go bb.Watch()
 	r := chi.NewRouter()
 	r.Use(bb.Handler)
 	r.Use(middleware.Logger)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		u, ok := r.Context().Value("bugsnag").(ReportFunc)
+		u, ok := r.Context().Value("bugsnag").(bug.ReportFunc)
 		fmt.Println(u, ok)
 		if ok {
 			query := r.URL.Query()
